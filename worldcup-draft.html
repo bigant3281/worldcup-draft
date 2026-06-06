@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 — Team Draft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #00B04F;
+    --green-dark: #007A36;
+    --gold: #F5C518;
+    --pitch: #1A3A2A;
+    --pitch-light: #234D38;
+    --surface: #0f2318;
+    --card: #1c3d2c;
+    --card-hover: #24503a;
+    --text: #E8F5EE;
+    --text-muted: #8BAA96;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.18);
+  }
+
+  body { font-family: 'Inter', sans-serif; background: var(--surface); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: var(--pitch);
+    border-bottom: 3px solid var(--green);
+    padding: 1.1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header .trophy { font-size: 2rem; }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.08em; color: var(--gold); line-height: 1; }
+  header p { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  header .header-right { margin-left: auto; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+
+  .hdr-btn {
+    border: 1px solid var(--border-strong);
+    border-radius: 7px;
+    padding: 0.42rem 1rem;
+    font-size: 0.8rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .hdr-btn.ghost { background: transparent; color: var(--text-muted); }
+  .hdr-btn.ghost:hover { color: var(--text); border-color: var(--text-muted); }
+  .hdr-btn.primary { background: var(--green-dark); color: #fff; border-color: var(--green); font-weight: 600; }
+  .hdr-btn.primary:hover { background: var(--green); }
+  .hdr-btn.primary:disabled { opacity: 0.35; cursor: not-allowed; background: var(--green-dark); }
+
+  .round-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    background: rgba(245,197,24,0.1);
+    border: 1px solid rgba(245,197,24,0.25);
+    border-radius: 6px;
+    padding: 0.3rem 0.8rem;
+    white-space: nowrap;
+  }
+
+  main { padding: 2rem; max-width: 1440px; margin: 0 auto; }
+
+  .status-bar { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.1rem; }
+  .progress-track { flex: 1; min-width: 80px; height: 4px; background: var(--pitch); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.35s ease; width: 0%; }
+  .progress-label { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.12em;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── PLAYER GRID ── */
+  .players-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    align-items: start;
+  }
+
+  .player-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .player-card.drag-over { border-color: var(--green); box-shadow: 0 0 0 2px rgba(0,176,79,0.25); }
+
+  .player-header {
+    background: var(--pitch-light);
+    padding: 0.7rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+  .player-number {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--green-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; color: #fff; flex-shrink: 0;
+  }
+  .player-name-input {
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 0.88rem; font-weight: 600; width: 100%;
+    caret-color: var(--green);
+  }
+  .player-name-input::placeholder { color: var(--text-muted); font-weight: 400; }
+
+  /* pick rows stack vertically inside the card body */
+  .picks-body { padding: 0.5rem 0.6rem; display: flex; flex-direction: column; gap: 0.45rem; }
+
+  /* one row per round */
+  .pick-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--pitch);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.65rem;
+    min-height: 52px;
+    position: relative;
+    transition: border-color 0.15s;
+  }
+
+  /* current-round drop zone that is empty */
+  .pick-row.drop-target {
+    border-style: dashed;
+    border-color: var(--border-strong);
+    justify-content: center;
+  }
+  .pick-row.drop-target-hover {
+    border-color: var(--green);
+    box-shadow: 0 0 0 2px rgba(0,176,79,0.2);
+  }
+
+  .round-label {
+    font-size: 0.6rem;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    min-width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .pick-flag { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+  .pick-info { min-width: 0; flex: 1; }
+  .pick-name { font-size: 0.75rem; font-weight: 600; color: var(--text); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pick-conf { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .pick-placeholder-text { font-size: 0.72rem; color: var(--text-muted); }
+
+  .remove-btn {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(0,0,0,0.4); border: none;
+    color: var(--text-muted); font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1; flex-shrink: 0;
+    transition: background 0.12s, color 0.12s;
+    margin-left: auto;
+  }
+  .remove-btn:hover { background: #c0392b; color: #fff; }
+
+  /* past round rows (locked) */
+  .pick-row.locked { opacity: 0.7; }
+  .pick-row.locked .remove-btn { display: none; }
+
+  /* ── TEAMS POOL ── */
+  .teams-pool-wrapper { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+  .pool-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+  .pool-count { font-size: 0.75rem; color: var(--text-muted); background: var(--pitch); padding: 0.2rem 0.65rem; border-radius: 20px; }
+  .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+  .filter-btn {
+    background: var(--pitch); border: 1px solid var(--border); color: var(--text-muted);
+    padding: 0.28rem 0.8rem; border-radius: 20px; font-size: 0.73rem;
+    cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.13s; white-space: nowrap;
+  }
+  .filter-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .filter-btn.active { background: var(--green-dark); border-color: var(--green); color: #fff; }
+
+  .teams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 0.55rem; }
+
+  .team-chip {
+    background: var(--pitch); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.55rem 0.7rem; cursor: grab;
+    display: flex; align-items: center; gap: 0.45rem;
+    transition: all 0.13s; user-select: none;
+  }
+  .team-chip:hover { border-color: var(--green); background: var(--card-hover); transform: translateY(-1px); }
+  .team-chip.dragging { opacity: 0.4; cursor: grabbing; }
+  .team-chip.assigned { opacity: 0.28; cursor: not-allowed; pointer-events: none; }
+  .chip-flag { font-size: 1.15rem; line-height: 1; flex-shrink: 0; }
+  .chip-info { min-width: 0; }
+  .chip-name { font-size: 0.73rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+  .chip-conf { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* drag ghost */
+  .drag-ghost {
+    position: fixed; pointer-events: none; z-index: 9999;
+    background: var(--pitch-light); border: 2px solid var(--green); border-radius: 8px;
+    padding: 0.55rem 0.85rem; display: flex; align-items: center; gap: 0.45rem;
+    font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.08s;
+  }
+  .drag-ghost.visible { opacity: 1; }
+  .ghost-flag { font-size: 1.05rem; }
+
+  /* confetti */
+  .confetti-piece {
+    position: fixed; width: 8px; height: 8px; border-radius: 2px;
+    pointer-events: none; z-index: 9000;
+    animation: confetti-fall 1.4s ease-in forwards;
+  }
+  @keyframes confetti-fall {
+    0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(220px) rotate(400deg); }
+  }
+
+  @media (max-width: 960px)  { .players-grid { grid-template-columns: repeat(3,1fr); } }
+  @media (max-width: 620px)  { .players-grid { grid-template-columns: repeat(2,1fr); } header h1 { font-size: 1.4rem; } main { padding: 1rem; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="trophy" aria-hidden="true">🏆</div>
+  <div>
+    <h1>World Cup 2026 Draft</h1>
+    <p>Drag a team onto a player column to assign it</p>
+  </div>
+  <div class="header-right">
+    <span class="round-badge" id="roundBadge">Round 1</span>
+    <button class="hdr-btn primary" id="nextRoundBtn" onclick="nextRound()">Next Round →</button>
+    <button class="hdr-btn ghost" onclick="resetAll()">Reset all</button>
+  </div>
+</header>
+
+<main>
+  <div class="status-bar">
+    <span class="progress-label" id="progressLabel">0 / 5 picked this round</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="section-label" id="playersLabel">Players — Round 1</div>
+  <div class="players-grid" id="playersGrid"></div>
+
+  <div class="section-label">Teams — 2026 FIFA World Cup (48 nations)</div>
+  <div class="teams-pool-wrapper">
+    <div class="pool-header">
+      <div class="filter-row" id="filterRow"></div>
+      <span class="pool-count" id="poolCount">48 available</span>
+    </div>
+    <div class="teams-grid" id="teamsGrid"></div>
+  </div>
+</main>
+
+<div class="drag-ghost" id="dragGhost">
+  <span class="ghost-flag" id="ghostFlag"></span>
+  <span id="ghostName"></span>
+</div>
+
+<script>
+const TEAMS = [
+  { name:"Argentina",       flag:"🇦🇷", conf:"CONMEBOL" },
+  { name:"Australia",       flag:"🇦🇺", conf:"AFC" },
+  { name:"Algeria",         flag:"🇩🇿", conf:"CAF" },
+  { name:"Austria",         flag:"🇦🇹", conf:"UEFA" },
+  { name:"Belgium",         flag:"🇧🇪", conf:"UEFA" },
+  { name:"Bolivia",         flag:"🇧🇴", conf:"CONMEBOL" },
+  { name:"Bosnia & Herz.",  flag:"🇧🇦", conf:"UEFA" },
+  { name:"Brazil",          flag:"🇧🇷", conf:"CONMEBOL" },
+  { name:"Cameroon",        flag:"🇨🇲", conf:"CAF" },
+  { name:"Canada",          flag:"🇨🇦", conf:"CONCACAF" },
+  { name:"Cabo Verde",      flag:"🇨🇻", conf:"CAF" },
+  { name:"Chile",           flag:"🇨🇱", conf:"CONMEBOL" },
+  { name:"Colombia",        flag:"🇨🇴", conf:"CONMEBOL" },
+  { name:"Costa Rica",      flag:"🇨🇷", conf:"CONCACAF" },
+  { name:"Croatia",         flag:"🇭🇷", conf:"UEFA" },
+  { name:"Curaçao",         flag:"🇨🇼", conf:"CONCACAF" },
+  { name:"Czech Republic",  flag:"🇨🇿", conf:"UEFA" },
+  { name:"DR Congo",        flag:"🇨🇩", conf:"CAF" },
+  { name:"Ecuador",         flag:"🇪🇨", conf:"CONMEBOL" },
+  { name:"Egypt",           flag:"🇪🇬", conf:"CAF" },
+  { name:"England",         flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", conf:"UEFA" },
+  { name:"France",          flag:"🇫🇷", conf:"UEFA" },
+  { name:"Germany",         flag:"🇩🇪", conf:"UEFA" },
+  { name:"Ghana",           flag:"🇬🇭", conf:"CAF" },
+  { name:"Honduras",        flag:"🇭🇳", conf:"CONCACAF" },
+  { name:"Indonesia",       flag:"🇮🇩", conf:"AFC" },
+  { name:"Iran",            flag:"🇮🇷", conf:"AFC" },
+  { name:"Iraq",            flag:"🇮🇶", conf:"AFC" },
+  { name:"Japan",           flag:"🇯🇵", conf:"AFC" },
+  { name:"Jordan",          flag:"🇯🇴", conf:"AFC" },
+  { name:"Mexico",          flag:"🇲🇽", conf:"CONCACAF" },
+  { name:"Morocco",         flag:"🇲🇦", conf:"CAF" },
+  { name:"Netherlands",     flag:"🇳🇱", conf:"UEFA" },
+  { name:"New Zealand",     flag:"🇳🇿", conf:"OFC" },
+  { name:"Nigeria",         flag:"🇳🇬", conf:"CAF" },
+  { name:"Norway",          flag:"🇳🇴", conf:"UEFA" },
+  { name:"Panama",          flag:"🇵🇦", conf:"CONCACAF" },
+  { name:"Paraguay",        flag:"🇵🇾", conf:"CONMEBOL" },
+  { name:"Portugal",        flag:"🇵🇹", conf:"UEFA" },
+  { name:"Qatar",           flag:"🇶🇦", conf:"AFC" },
+  { name:"Saudi Arabia",    flag:"🇸🇦", conf:"AFC" },
+  { name:"Scotland",        flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", conf:"UEFA" },
+  { name:"Senegal",         flag:"🇸🇳", conf:"CAF" },
+  { name:"South Africa",    flag:"🇿🇦", conf:"CAF" },
+  { name:"South Korea",     flag:"🇰🇷", conf:"AFC" },
+  { name:"Spain",           flag:"🇪🇸", conf:"UEFA" },
+  { name:"Sweden",          flag:"🇸🇪", conf:"UEFA" },
+  { name:"Switzerland",     flag:"🇨🇭", conf:"UEFA" },
+  { name:"Turkey",          flag:"🇹🇷", conf:"UEFA" },
+  { name:"United States",   flag:"🇺🇸", conf:"CONCACAF" },
+  { name:"Uruguay",         flag:"🇺🇾", conf:"CONMEBOL" },
+  { name:"Uzbekistan",      flag:"🇺🇿", conf:"AFC" },
+  { name:"Venezuela",       flag:"🇻🇪", conf:"CONMEBOL" },
+  { name:"Zambia",          flag:"🇿🇲", conf:"CAF" },
+];
+
+const CONFS = ["All","UEFA","CONMEBOL","AFC","CAF","CONCACAF","OFC"];
+
+/* ── State ── */
+let currentRound = 1;
+let activeFilter = "All";
+let draggedTeam = null;
+
+// players[i].picks = [ {round, team} , … ]
+let players = [1,2,3,4,5].map(id => ({ id, name:`Player ${id}`, picks:[] }));
+
+/* ── Helpers ── */
+function allAssignedTeams() {
+  const names = new Set();
+  players.forEach(p => p.picks.forEach(pk => names.add(pk.team.name)));
+  return names;
+}
+
+function currentRoundPickOf(player) {
+  return player.picks.find(pk => pk.round === currentRound) || null;
+}
+
+function pickedThisRound() {
+  return players.filter(p => currentRoundPickOf(p)).length;
+}
+
+/* ── Header & progress ── */
+function updateHeader() {
+  document.getElementById("roundBadge").textContent = `Round ${currentRound}`;
+  document.getElementById("playersLabel").textContent = `Players — Round ${currentRound}`;
+
+  const picked = pickedThisRound();
+  const total = players.length;
+  document.getElementById("progressLabel").textContent = `${picked} / ${total} picked this round`;
+  document.getElementById("progressFill").style.width = ((picked/total)*100) + "%";
+
+  // Next Round enabled only when at least one pick exists this round
+  // (allow partial advancement)
+  document.getElementById("nextRoundBtn").disabled = picked === 0;
+}
+
+/* ── Build player cards ── */
+function buildPlayers() {
+  const grid = document.getElementById("playersGrid");
+  grid.innerHTML = "";
+
+  players.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "player-card";
+    card.dataset.pid = p.id;
+
+    // Header
+    const header = document.createElement("div");
+    header.className = "player-header";
+    header.innerHTML = `
+      <div class="player-number">${p.id}</div>
+      <input class="player-name-input" type="text" value="${p.name}"
+             placeholder="Enter name…" data-pid="${p.id}" maxlength="20"/>
+    `;
+    header.querySelector("input").addEventListener("input", e => {
+      p.name = e.target.value;
+    });
+
+    // Body — one row per past round + one drop row for current round
+    const body = document.createElement("div");
+    body.className = "picks-body";
+
+    // Past rounds (locked)
+    for (let r = 1; r < currentRound; r++) {
+      const pick = p.picks.find(pk => pk.round === r);
+      const row = document.createElement("div");
+      row.className = "pick-row locked";
+      if (pick) {
+        row.innerHTML = `
+          <span class="round-label">R${r}</span>
+          <span class="pick-flag">${pick.team.flag}</span>
+          <div class="pick-info">
+            <span class="pick-name">${pick.team.name}</span>
+            <span class="pick-conf">${pick.team.conf}</span>
+          </div>
+        `;
+      } else {
+        row.innerHTML = `
+          <span class="round-label">R${r}</span>
+          <span class="pick-placeholder-text" style="color:var(--text-muted);font-size:0.7rem;">— skipped —</span>
+        `;
+      }
+      body.appendChild(row);
+    }
+
+    // Current round drop row
+    const currentPick = currentRoundPickOf(p);
+    const dropRow = document.createElement("div");
+    dropRow.className = "pick-row" + (currentPick ? "" : " drop-target");
+
+    if (currentPick) {
+      dropRow.innerHTML = `
+        <span class="round-label">R${currentRound}</span>
+        <span class="pick-flag">${currentPick.team.flag}</span>
+        <div class="pick-info">
+          <span class="pick-name">${currentPick.team.name}</span>
+          <span class="pick-conf">${currentPick.team.conf}</span>
+        </div>
+        <button class="remove-btn" title="Remove" aria-label="Remove pick">&times;</button>
+      `;
+      dropRow.querySelector(".remove-btn").addEventListener("click", () => removePick(p.id));
+    } else {
+      dropRow.innerHTML = `
+        <span class="round-label">R${currentRound}</span>
+        <span class="pick-placeholder-text">Drop here</span>
+      `;
+    }
+
+    // Drag-over highlight on the drop row only
+    dropRow.addEventListener("dragover", e => { e.preventDefault(); dropRow.classList.add("drop-target-hover"); });
+    dropRow.addEventListener("dragleave", () => dropRow.classList.remove("drop-target-hover"));
+    dropRow.addEventListener("drop", e => {
+      e.preventDefault();
+      dropRow.classList.remove("drop-target-hover");
+      if (draggedTeam) assignTeam(p.id, draggedTeam);
+    });
+
+    // Also let the whole card accept drops
+    card.addEventListener("dragover", e => {
+      e.preventDefault();
+      if (!currentRoundPickOf(p)) card.classList.add("drag-over");
+    });
+    card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
+    card.addEventListener("drop", e => {
+      e.preventDefault();
+      card.classList.remove("drag-over");
+      if (draggedTeam && !currentRoundPickOf(p)) assignTeam(p.id, draggedTeam);
+    });
+
+    body.appendChild(dropRow);
+    card.appendChild(header);
+    card.appendChild(body);
+    grid.appendChild(card);
+  });
+}
+
+/* ── Team pool ── */
+function buildFilterRow() {
+  const row = document.getElementById("filterRow");
+  row.innerHTML = "";
+  CONFS.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "filter-btn" + (c === activeFilter ? " active" : "");
+    b.textContent = c;
+    b.onclick = () => { activeFilter = c; buildFilterRow(); renderTeams(); };
+    row.appendChild(b);
+  });
+}
+
+function renderTeams() {
+  const grid = document.getElementById("teamsGrid");
+  const assigned = allAssignedTeams();
+  const filtered = activeFilter === "All" ? TEAMS : TEAMS.filter(t => t.conf === activeFilter);
+  const available = filtered.filter(t => !assigned.has(t.name)).length;
+  document.getElementById("poolCount").textContent = `${available} of ${filtered.length} available`;
+
+  grid.innerHTML = "";
+  filtered.forEach(team => {
+    const isAssigned = assigned.has(team.name);
+    const chip = document.createElement("div");
+    chip.className = "team-chip" + (isAssigned ? " assigned" : "");
+    chip.draggable = !isAssigned;
+    chip.innerHTML = `
+      <span class="chip-flag">${team.flag}</span>
+      <div class="chip-info">
+        <span class="chip-name">${team.name}</span>
+        <span class="chip-conf">${team.conf}</span>
+      </div>
+    `;
+    chip.addEventListener("dragstart", e => {
+      if (isAssigned) { e.preventDefault(); return; }
+      draggedTeam = team;
+      chip.classList.add("dragging");
+      showGhost(team);
+    });
+    chip.addEventListener("dragend", () => {
+      chip.classList.remove("dragging");
+      draggedTeam = null;
+      hideGhost();
+    });
+    grid.appendChild(chip);
+  });
+}
+
+/* ── Actions ── */
+function assignTeam(playerId, team) {
+  const player = players.find(p => p.id === playerId);
+  if (!player) return;
+
+  // If this team is already picked by someone else this round, swap them out
+  const prevHolder = players.find(p =>
+    p.id !== playerId && p.picks.some(pk => pk.round === currentRound && pk.team.name === team.name)
+  );
+  if (prevHolder) {
+    prevHolder.picks = prevHolder.picks.filter(pk => pk.round !== currentRound);
+  }
+
+  // Remove existing current-round pick for this player (swap within same slot)
+  player.picks = player.picks.filter(pk => pk.round !== currentRound);
+  player.picks.push({ round: currentRound, team });
+
+  buildPlayers();
+  renderTeams();
+  updateHeader();
+  celebrate();
+}
+
+function removePick(playerId) {
+  const player = players.find(p => p.id === playerId);
+  if (!player) return;
+  player.picks = player.picks.filter(pk => pk.round !== currentRound);
+  buildPlayers();
+  renderTeams();
+  updateHeader();
+}
+
+function nextRound() {
+  if (pickedThisRound() === 0) return;
+  currentRound++;
+  buildPlayers();
+  renderTeams();
+  updateHeader();
+  // scroll to top of players section
+  document.getElementById("playersGrid").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function resetAll() {
+  currentRound = 1;
+  players.forEach((p, i) => { p.picks = []; p.name = `Player ${i+1}`; });
+  buildPlayers();
+  renderTeams();
+  updateHeader();
+}
+
+/* ── Drag ghost ── */
+const ghost = document.getElementById("dragGhost");
+document.addEventListener("dragover", e => {
+  ghost.style.left = (e.clientX + 16) + "px";
+  ghost.style.top  = (e.clientY + 8)  + "px";
+});
+function showGhost(team) {
+  document.getElementById("ghostFlag").textContent = team.flag;
+  document.getElementById("ghostName").textContent = team.name;
+  ghost.classList.add("visible");
+}
+function hideGhost() { ghost.classList.remove("visible"); }
+
+/* ── Confetti ── */
+function celebrate() {
+  const colors = ["#F5C518","#00B04F","#ffffff","#3498db","#e74c3c"];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.cssText = `
+      left:${Math.random()*window.innerWidth}px;
+      top:${Math.random()*window.innerHeight*0.5}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;
+      animation-duration:${0.8+Math.random()*0.7}s;
+      animation-delay:${Math.random()*0.15}s;
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1600);
+  }
+}
+
+/* ── Init ── */
+document.addEventListener("DOMContentLoaded", () => {
+  buildFilterRow();
+  buildPlayers();
+  renderTeams();
+  updateHeader();
+});
+</script>
+</body>
+</html>
