@@ -206,21 +206,21 @@
   .filter-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
   .filter-btn.active { background: var(--green-dark); border-color: var(--green); color: #fff; }
 
-  .teams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 0.55rem; }
+  .teams-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.6rem; }
 
   .team-chip {
     background: var(--pitch); border: 1px solid var(--border); border-radius: 8px;
-    padding: 0.55rem 0.7rem; cursor: grab;
-    display: flex; align-items: center; gap: 0.45rem;
+    padding: 0.75rem 0.9rem; cursor: grab;
+    display: flex; align-items: center; gap: 0.6rem;
     transition: all 0.13s; user-select: none;
   }
   .team-chip:hover { border-color: var(--green); background: var(--card-hover); transform: translateY(-1px); }
   .team-chip.dragging { opacity: 0.4; cursor: grabbing; }
   .team-chip.assigned { opacity: 0.28; cursor: not-allowed; pointer-events: none; }
-  .chip-flag { font-size: 1.15rem; line-height: 1; flex-shrink: 0; }
+  .chip-flag { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
   .chip-info { min-width: 0; }
-  .chip-name { font-size: 0.73rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-  .chip-conf { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .chip-name { font-size: 0.82rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+  .chip-conf { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
   /* drag ghost */
   .drag-ghost {
