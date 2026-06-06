@@ -1,249 +1,3 @@
-Claude finished the response
-
-make a webpage that shows a list of 5 players and a list of all the teams participating in the world cup. The goal is to create a drag and drop selector where each player will pick a team, I can drag the team name to their column and assign it to them. Each player will then pick a team and it gets assigned to them. The names will be customized so just allow me to type the player's name. For the layout create the player columns first and add the list of teams below it.
-12:53 PM
-Searched the web, viewed a file
-
-I have enough information about the 48 teams. Now let me build the webpage.
-Created a file, read a file
-
-Here's your World Cup 2026 draft board! Here's what it does:
-
-Player columns (top)
-
-    5 player slots, each with an editable name field — just click and type to rename anyone
-    Each column has a drop zone that shows the assigned team's flag, name, and confederation once filled
-    A small ✕ button lets you remove a team from a player and put it back in the pool
-
-Teams pool (bottom)
-
-    All 48 confirmed 2026 FIFA World Cup nations, each showing their flag and confederation
-    Filter buttons to narrow by confederation (UEFA, CONMEBOL, AFC, CAF, CONCACAF, OFC)
-    A counter shows how many teams are still available
-    Assigned teams dim out so you can't accidentally pick the same one twice
-
-Drag & drop
-
-    Grab any team chip and drag it onto a player column to assign it
-    A ghost follows your cursor while dragging
-    A small confetti burst celebrates each pick
-    A progress bar at the top tracks how many players have made their pick
-
-Reset button in the header clears everything and resets all names back to defaults.
-Worldcup draft
-Code · HTML 
-
-Add a button to manually move to the next round of selections. Also when a 2nd selection is added it needs to be added in a new row below the first selection.
-1:07 PM
-Reading the current HTML file to understand the structure before editing
-
-Now I have a full picture of the code. I'll rewrite the file with the multi-round system: each player has an array of picks per round, picks stack as rows inside the player card, and there's a "Next Round" button in the header.
-Ran a command, read a file
-
-Here's the updated draft board! Here's what changed:
-
-Multi-round system
-
-    A "Round 1" badge in the header always shows which round is active
-    The Next Round → button advances to the next round — it activates as soon as at least one player has made a pick
-    Each new round adds a fresh drop row at the bottom of every player column, stacking below the previous rounds
-
-Pick rows per player
-
-    Each round gets its own labeled row (R1, R2, R3…) inside the player card
-    Past rounds are locked and shown in a dimmed style — no accidental edits
-    The current round's row has a dashed border while empty, and a × button to swap out the pick
-    If a player skips a round (you advance without them picking), their slot shows "— skipped —"
-
-Teams pool stays smart
-
-    A team assigned in any round (past or current) is dimmed out across all rounds, so no one can double-pick the same country
-    The available count reflects all picks across all rounds
-
-Worldcup draft
-Code · HTML 
-
-I want to add this as a static webpage on my github
-1:10 PM
-
-Here's how to get it up as a GitHub Pages site — it's straightforward since it's a single static HTML file.
-
-Step 1 — Create a new repository
-
-Go to github.com, click New repository, give it a name like worldcup-draft, set it to Public, and create it.
-
-Step 2 — Upload the file
-
-In the new repo, click Add file → Upload files, drag in your worldcup-draft.html file, then commit it.
-
-Step 3 — Rename it index.html
-
-GitHub Pages serves index.html as the root page. You can rename it before uploading, or after — click the file in the repo, hit the pencil (edit) icon, change the filename at the top from worldcup-draft.html to index.html, and commit.
-
-Step 4 — Enable GitHub Pages
-
-Go to your repo's Settings → Pages (left sidebar). Under Source, select Deploy from a branch, choose main (or master), leave the folder as / (root), and click Save.
-
-Step 5 — Visit your site
-
-After about 30–60 seconds, your page will be live at:
-
-https://<your-github-username>.github.io/worldcup-draft/
-
-GitHub will also show you the exact URL at the top of the Pages settings screen once it's deployed.
-
-A couple of tips:
-
-    If you make edits later, just upload a new version of index.html to the repo and the site updates automatically within a minute or so.
-    If you'd prefer to use the CLI, git push works the same way — Pages redeploys on every push to the main branch.
-    The font (Bebas Neue + Inter) loads from Google Fonts, so it needs an internet connection to render correctly — no extra setup needed.
-
-why does it show 54 teams available. check the available teams again to verify
-1:38 PM
-Searched the web
-
-Good — I now have the verified 48-team list from the official table. Let me compare it against what's in the file and fix it.
-
-The confirmed 48 are: France, Spain, Argentina, England, Portugal, Brazil, Netherlands, Morocco, Belgium, Germany, Croatia, Colombia, Senegal, Mexico, USA, Uruguay, Japan, Switzerland, Iran, Austria, Ecuador, Australia, South Korea, Egypt, Canada, Ivory Coast, Qatar, Algeria, Sweden, Tunisia, Czech Republic (Czechia), Turkey, Norway, Scotland, DR Congo, Bosnia & Herzegovina, Panama, Saudi Arabia, South Africa, Iraq, and from the remaining entries I need to see teams 41–48.
-Searched the web
-
-Now I have the definitive, confirmed list of all 48 teams from ESPN's squad page. Let me diff what's in the file against the real list.
-
-In the file but NOT in the tournament (6 wrong teams):
-
-    Bolivia ❌
-    Chile ❌
-    Costa Rica ❌
-    Honduras ❌
-    Venezuela ❌
-    Zambia ❌
-
-In the tournament but MISSING from the file (6 missing teams):
-
-    Haiti ✅
-    Ivory Coast (Côte d'Ivoire) ✅ — partially listed as "Ivory Coast" but was missing
-    Paraguay ✅
-    Tunisia ✅ — was missing
-    Cape Verde (listed as "Cabo Verde") ✅ — was there but let me double-check
-    Ghana ✅ — was there
-
-Let me cross-check precisely against the code:
-Viewed 3 files
-
-Now I have a clear picture. Here's the exact diff:
-
-54 entries in file → should be 48. The 6 extras that don't belong + 6 that are wrong or missing:
-
-    ❌ Bolivia — didn't qualify (Paraguay did, and it's already there ✅)
-    ❌ Cameroon — didn't qualify (DR Congo knocked them out)
-    ❌ Chile — didn't qualify
-    ❌ Costa Rica — didn't qualify
-    ❌ Honduras — didn't qualify
-    ❌ Indonesia — didn't qualify
-    ❌ Nigeria — didn't qualify
-    ❌ Venezuela — didn't qualify
-    ❌ Zambia — didn't qualify
-
-And missing: Haiti, Ivory Coast, Tunisia — all confirmed qualifiers not in the list.
-
-That's 9 wrong − 3 missing = net 6 extras = 54 total. Now let me fix it.
-Replace the incorrect TEAMS array with the verified 48 qualified nations
-
-Also fix the AFC count — I counted 9 AFC teams above but there are only 8 (Australia, Iran, Iraq, Japan, Jordan, Qatar, Saudi Arabia, South Korea, Uzbekistan = 9, which is correct per the Yahoo source). Let me also fix the header label and verify the total count:
-Count the number of teams in the array
-
-Exactly 48. Now fix the label in the HTML from "48 nations" (it was already correct) and update the AFC comment since there are actually 9 AFC teams (Australia, Iran, Iraq, Japan, Jordan, Qatar, Saudi Arabia, South Korea, Uzbekistan):
-Fix the AFC comment to say 9 teams, not 8
-
-Now fix the CAF comment — it's 9 direct + DR Congo via inter-conf = 10 total:
-Edited a file, read a file
-
-You were right — the original list had 54 entries. Here's exactly what was wrong:
-
-9 teams removed (didn't qualify): Bolivia, Cameroon, Chile, Costa Rica, Honduras, Indonesia, Nigeria, Venezuela, Zambia
-
-3 teams added (were missing): Haiti, Ivory Coast, Tunisia
-
-The verified count is now exactly 48, grouped correctly by confederation: UEFA (16), CONMEBOL (6), AFC (9), CAF (10), CONCACAF (6), OFC (1). I also corrected "Czech Republic" → "Czechia" and "Turkey" → "Türkiye" to match the official FIFA names.
-Worldcup draft
-Code · HTML 
-
-add the current odds of winning to each of the teams based on the major betting platforms
-2:12 PM
-Searched the web
-
-I now have the complete odds for all 48 teams from FanDuel. Let me update the file.
-Replace the TEAMS array with one that includes odds for all 48 teams
-
-Now update the chip HTML to display the odds, and style them with a color based on tier:
-Update chip HTML template to show odds, and add odds styling to assigned-team display
-
-Now update the pick row template to also show odds when a team is assigned:
-Update current-round pick row to show odds
-
-Now update the past-round locked rows to show odds too:
-Update past-round locked row to show odds
-
-Now add the oddsClass helper function and the CSS styles for odds display:
-Add oddsClass helper function before CONFS definition
-
-Now add the CSS for the odds badge and color tiers, and the chip-odds style:
-Edited 2 files
-
-Now let's verify the file looks correct end-to-end:
-Ran 2 commands
-
-Everything is wired up correctly. Let me do a final sanity check on the count:
-Ran a command, read a file
-
-Odds are sourced from FanDuel Sportsbook as of June 5, 2026. Here's what was added:
-Soccergraph
-
-Odds on every team chip — shown as a small badge on the right side of each card in the pool, color-coded by tier:
-
-    🟡 Gold — top favorites (+450 to +1000): Spain, France, England, Brazil, Argentina, Portugal
-    🟢 Green — contenders (+1300 to +7500): Germany, Netherlands, Norway, Croatia, Morocco, Colombia, Uruguay, Switzerland, USA
-    🔵 Blue — long shots (+7500 to +30000): Belgium, Mexico, Senegal, Sweden, Scotland, Canada, Paraguay, Ghana, Algeria, Egypt, Ivory Coast
-    ⚫ Gray — extreme underdogs (+35000 and beyond): everyone else
-
-Odds also appear in the player pick rows — so when a team is assigned to a player, their card shows the confederation and odds together (e.g. "UEFA · +480"), giving you a quick read on how strong each player's picks are across rounds.
-Worldcup draft
-Code · HTML 
-
-sort the team array based on odds starting with gold
-2:15 PM
-Sort the TEAMS array by odds from best (lowest number) to worst (highest number)
-
-I notice I accidentally mis-sorted Uruguay (+6000) — it ended up after Morocco (+7500). Let me fix the order to be strictly ascending:
-Edited a file, ran a command, read a file
-
-Done! The teams are now sorted strictly by odds from best to worst:
-
-    +450 → +950 — Spain, France, England, Brazil, Argentina, Portugal (gold tier)
-    +1300 → +3300 — Germany, Netherlands, Belgium, Norway
-    +5000 → +7500 — Colombia, Uruguay, Switzerland, USA, Croatia, Mexico, Morocco
-    +10000 → +35000 — Austria, Ecuador, Japan, Türkiye, Senegal, Sweden, Scotland, Ivory Coast, Canada, Ghana, Paraguay, Algeria, Egypt, Bosnia
-    +50000 → +200000 — Czechia, South Korea, Iran, DR Congo, Tunisia, Australia
-    +250000 — the 11 longshots grouped at the bottom
-
-Worldcup draft
-Code · HTML 
-
-abbreviate the odd numbers like 10k for 10000 or 250k 250000
-2:18 PM
-Edited 2 files
-
-Now replace every place where team.odds or pick.team.odds is displayed with formatOdds(...):
-Edited 3 files, ran a command, read a file
-
-Done! Odds are now abbreviated everywhere they appear — on the team chips in the pool and in the player pick rows. The logic keeps sub-1000 odds as-is (like +450, +650, +950) and shortens everything else, so you'll see things like +1.3k, +2.5k, +7.5k, +250k.
-Worldcup draft
-Code · HTML 
-Want to be notified when Claude responds?
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-Worldcup draft · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -254,7 +8,7 @@ Worldcup draft · HTML
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
   :root {
     --green: #00B04F;
     --green-dark: #007A36;
@@ -269,9 +23,9 @@ Worldcup draft · HTML
     --border: rgba(255,255,255,0.08);
     --border-strong: rgba(255,255,255,0.18);
   }
- 
+
   body { font-family: 'Inter', sans-serif; background: var(--surface); color: var(--text); min-height: 100vh; }
- 
+
   header {
     background: var(--pitch);
     border-bottom: 3px solid var(--green);
@@ -287,7 +41,7 @@ Worldcup draft · HTML
   header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.08em; color: var(--gold); line-height: 1; }
   header p { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
   header .header-right { margin-left: auto; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
- 
+
   .hdr-btn {
     border: 1px solid var(--border-strong);
     border-radius: 7px;
@@ -303,7 +57,7 @@ Worldcup draft · HTML
   .hdr-btn.primary { background: var(--green-dark); color: #fff; border-color: var(--green); font-weight: 600; }
   .hdr-btn.primary:hover { background: var(--green); }
   .hdr-btn.primary:disabled { opacity: 0.35; cursor: not-allowed; background: var(--green-dark); }
- 
+
   .round-badge {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1rem;
@@ -315,14 +69,14 @@ Worldcup draft · HTML
     padding: 0.3rem 0.8rem;
     white-space: nowrap;
   }
- 
+
   main { padding: 2rem; max-width: 1440px; margin: 0 auto; }
- 
+
   .status-bar { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.1rem; }
   .progress-track { flex: 1; min-width: 80px; height: 4px; background: var(--pitch); border-radius: 2px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.35s ease; width: 0%; }
   .progress-label { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
- 
+
   .section-label {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.05rem;
@@ -335,7 +89,7 @@ Worldcup draft · HTML
     gap: 0.5rem;
   }
   .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
- 
+
   /* ── PLAYER GRID ── */
   .players-grid {
     display: grid;
@@ -344,7 +98,7 @@ Worldcup draft · HTML
     margin-bottom: 2.5rem;
     align-items: start;
   }
- 
+
   .player-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -354,7 +108,7 @@ Worldcup draft · HTML
     position: relative;
   }
   .player-card.drag-over { border-color: var(--green); box-shadow: 0 0 0 2px rgba(0,176,79,0.25); }
- 
+
   .player-header {
     background: var(--pitch-light);
     padding: 0.7rem 1rem;
@@ -378,10 +132,10 @@ Worldcup draft · HTML
     caret-color: var(--green);
   }
   .player-name-input::placeholder { color: var(--text-muted); font-weight: 400; }
- 
+
   /* pick rows stack vertically inside the card body */
   .picks-body { padding: 0.5rem 0.6rem; display: flex; flex-direction: column; gap: 0.45rem; }
- 
+
   /* one row per round */
   .pick-row {
     display: flex;
@@ -395,7 +149,7 @@ Worldcup draft · HTML
     position: relative;
     transition: border-color 0.15s;
   }
- 
+
   /* current-round drop zone that is empty */
   .pick-row.drop-target {
     border-style: dashed;
@@ -406,7 +160,7 @@ Worldcup draft · HTML
     border-color: var(--green);
     box-shadow: 0 0 0 2px rgba(0,176,79,0.2);
   }
- 
+
   .round-label {
     font-size: 0.6rem;
     font-family: 'Bebas Neue', sans-serif;
@@ -416,14 +170,14 @@ Worldcup draft · HTML
     text-align: center;
     flex-shrink: 0;
   }
- 
+
   .pick-flag { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
   .pick-info { min-width: 0; flex: 1; }
   .pick-name { font-size: 0.75rem; font-weight: 600; color: var(--text); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pick-conf { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
- 
+
   .pick-placeholder-text { font-size: 0.72rem; color: var(--text-muted); }
- 
+
   .remove-btn {
     width: 18px; height: 18px; border-radius: 50%;
     background: rgba(0,0,0,0.4); border: none;
@@ -434,11 +188,11 @@ Worldcup draft · HTML
     margin-left: auto;
   }
   .remove-btn:hover { background: #c0392b; color: #fff; }
- 
+
   /* past round rows (locked) */
   .pick-row.locked { opacity: 0.7; }
   .pick-row.locked .remove-btn { display: none; }
- 
+
   /* ── TEAMS POOL ── */
   .teams-pool-wrapper { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
   .pool-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
@@ -451,9 +205,9 @@ Worldcup draft · HTML
   }
   .filter-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
   .filter-btn.active { background: var(--green-dark); border-color: var(--green); color: #fff; }
- 
+
   .teams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 0.55rem; }
- 
+
   .team-chip {
     background: var(--pitch); border: 1px solid var(--border); border-radius: 8px;
     padding: 0.55rem 0.7rem; cursor: grab;
@@ -467,7 +221,7 @@ Worldcup draft · HTML
   .chip-info { min-width: 0; }
   .chip-name { font-size: 0.73rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
   .chip-conf { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
- 
+
   /* drag ghost */
   .drag-ghost {
     position: fixed; pointer-events: none; z-index: 9999;
@@ -478,7 +232,7 @@ Worldcup draft · HTML
   }
   .drag-ghost.visible { opacity: 1; }
   .ghost-flag { font-size: 1.05rem; }
- 
+
   /* confetti */
   .confetti-piece {
     position: fixed; width: 8px; height: 8px; border-radius: 2px;
@@ -489,7 +243,7 @@ Worldcup draft · HTML
     0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
     100% { opacity: 0; transform: translateY(220px) rotate(400deg); }
   }
- 
+
   /* ── Odds ── */
   .chip-odds {
     font-size: 0.62rem;
@@ -505,13 +259,13 @@ Worldcup draft · HTML
   .odds-warm { color: #7ddb8a; background: rgba(125,219,138,0.1); }
   .odds-cool { color: #7ab8f5; background: rgba(122,184,245,0.1); }
   .odds-long { color: #8BAA96; background: rgba(139,170,150,0.08); }
- 
+
   @media (max-width: 960px)  { .players-grid { grid-template-columns: repeat(3,1fr); } }
   @media (max-width: 620px)  { .players-grid { grid-template-columns: repeat(2,1fr); } header h1 { font-size: 1.4rem; } main { padding: 1rem; } }
 </style>
 </head>
 <body>
- 
+
 <header>
   <div class="trophy" aria-hidden="true">🏆</div>
   <div>
@@ -524,16 +278,16 @@ Worldcup draft · HTML
     <button class="hdr-btn ghost" onclick="resetAll()">Reset all</button>
   </div>
 </header>
- 
+
 <main>
   <div class="status-bar">
     <span class="progress-label" id="progressLabel">0 / 5 picked this round</span>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   </div>
- 
+
   <div class="section-label" id="playersLabel">Players — Round 1</div>
   <div class="players-grid" id="playersGrid"></div>
- 
+
   <div class="section-label">Teams — 2026 FIFA World Cup (48 nations)</div>
   <div class="teams-pool-wrapper">
     <div class="pool-header">
@@ -543,12 +297,12 @@ Worldcup draft · HTML
     <div class="teams-grid" id="teamsGrid"></div>
   </div>
 </main>
- 
+
 <div class="drag-ghost" id="dragGhost">
   <span class="ghost-flag" id="ghostFlag"></span>
   <span id="ghostName"></span>
 </div>
- 
+
 <script>
 const TEAMS = [
   { name:"Spain",           flag:"🇪🇸", conf:"UEFA",     odds:"+450"   },
@@ -600,9 +354,9 @@ const TEAMS = [
   { name:"South Africa",    flag:"🇿🇦", conf:"CAF",      odds:"+250000"},
   { name:"Uzbekistan",      flag:"🇺🇿", conf:"AFC",      odds:"+250000"},
 ];
- 
+
 const CONFS = ["All","UEFA","CONMEBOL","AFC","CAF","CONCACAF","OFC"];
- 
+
 /* ── Odds helpers ── */
 function oddsValue(odds) { return parseInt(odds.replace('+','')); }
 function oddsClass(odds) {
@@ -617,55 +371,55 @@ function formatOdds(odds) {
   if (v >= 1000) return '+' + (v / 1000) + 'k';
   return odds;
 }
- 
+
 /* ── State ── */
 let currentRound = 1;
 let activeFilter = "All";
 let draggedTeam = null;
- 
+
 // players[i].picks = [ {round, team} , … ]
 let players = [1,2,3,4,5].map(id => ({ id, name:`Player ${id}`, picks:[] }));
- 
+
 /* ── Helpers ── */
 function allAssignedTeams() {
   const names = new Set();
   players.forEach(p => p.picks.forEach(pk => names.add(pk.team.name)));
   return names;
 }
- 
+
 function currentRoundPickOf(player) {
   return player.picks.find(pk => pk.round === currentRound) || null;
 }
- 
+
 function pickedThisRound() {
   return players.filter(p => currentRoundPickOf(p)).length;
 }
- 
+
 /* ── Header & progress ── */
 function updateHeader() {
   document.getElementById("roundBadge").textContent = `Round ${currentRound}`;
   document.getElementById("playersLabel").textContent = `Players — Round ${currentRound}`;
- 
+
   const picked = pickedThisRound();
   const total = players.length;
   document.getElementById("progressLabel").textContent = `${picked} / ${total} picked this round`;
   document.getElementById("progressFill").style.width = ((picked/total)*100) + "%";
- 
+
   // Next Round enabled only when at least one pick exists this round
   // (allow partial advancement)
   document.getElementById("nextRoundBtn").disabled = picked === 0;
 }
- 
+
 /* ── Build player cards ── */
 function buildPlayers() {
   const grid = document.getElementById("playersGrid");
   grid.innerHTML = "";
- 
+
   players.forEach(p => {
     const card = document.createElement("div");
     card.className = "player-card";
     card.dataset.pid = p.id;
- 
+
     // Header
     const header = document.createElement("div");
     header.className = "player-header";
@@ -677,11 +431,11 @@ function buildPlayers() {
     header.querySelector("input").addEventListener("input", e => {
       p.name = e.target.value;
     });
- 
+
     // Body — one row per past round + one drop row for current round
     const body = document.createElement("div");
     body.className = "picks-body";
- 
+
     // Past rounds (locked)
     for (let r = 1; r < currentRound; r++) {
       const pick = p.picks.find(pk => pk.round === r);
@@ -704,12 +458,12 @@ function buildPlayers() {
       }
       body.appendChild(row);
     }
- 
+
     // Current round drop row
     const currentPick = currentRoundPickOf(p);
     const dropRow = document.createElement("div");
     dropRow.className = "pick-row" + (currentPick ? "" : " drop-target");
- 
+
     if (currentPick) {
       dropRow.innerHTML = `
         <span class="round-label">R${currentRound}</span>
@@ -727,7 +481,7 @@ function buildPlayers() {
         <span class="pick-placeholder-text">Drop here</span>
       `;
     }
- 
+
     // Drag-over highlight on the drop row only
     dropRow.addEventListener("dragover", e => { e.preventDefault(); dropRow.classList.add("drop-target-hover"); });
     dropRow.addEventListener("dragleave", () => dropRow.classList.remove("drop-target-hover"));
@@ -736,7 +490,7 @@ function buildPlayers() {
       dropRow.classList.remove("drop-target-hover");
       if (draggedTeam) assignTeam(p.id, draggedTeam);
     });
- 
+
     // Also let the whole card accept drops
     card.addEventListener("dragover", e => {
       e.preventDefault();
@@ -748,14 +502,14 @@ function buildPlayers() {
       card.classList.remove("drag-over");
       if (draggedTeam && !currentRoundPickOf(p)) assignTeam(p.id, draggedTeam);
     });
- 
+
     body.appendChild(dropRow);
     card.appendChild(header);
     card.appendChild(body);
     grid.appendChild(card);
   });
 }
- 
+
 /* ── Team pool ── */
 function buildFilterRow() {
   const row = document.getElementById("filterRow");
@@ -768,14 +522,14 @@ function buildFilterRow() {
     row.appendChild(b);
   });
 }
- 
+
 function renderTeams() {
   const grid = document.getElementById("teamsGrid");
   const assigned = allAssignedTeams();
   const filtered = activeFilter === "All" ? TEAMS : TEAMS.filter(t => t.conf === activeFilter);
   const available = filtered.filter(t => !assigned.has(t.name)).length;
   document.getElementById("poolCount").textContent = `${available} of ${filtered.length} available`;
- 
+
   grid.innerHTML = "";
   filtered.forEach(team => {
     const isAssigned = assigned.has(team.name);
@@ -804,12 +558,12 @@ function renderTeams() {
     grid.appendChild(chip);
   });
 }
- 
+
 /* ── Actions ── */
 function assignTeam(playerId, team) {
   const player = players.find(p => p.id === playerId);
   if (!player) return;
- 
+
   // If this team is already picked by someone else this round, swap them out
   const prevHolder = players.find(p =>
     p.id !== playerId && p.picks.some(pk => pk.round === currentRound && pk.team.name === team.name)
@@ -817,17 +571,17 @@ function assignTeam(playerId, team) {
   if (prevHolder) {
     prevHolder.picks = prevHolder.picks.filter(pk => pk.round !== currentRound);
   }
- 
+
   // Remove existing current-round pick for this player (swap within same slot)
   player.picks = player.picks.filter(pk => pk.round !== currentRound);
   player.picks.push({ round: currentRound, team });
- 
+
   buildPlayers();
   renderTeams();
   updateHeader();
   celebrate();
 }
- 
+
 function removePick(playerId) {
   const player = players.find(p => p.id === playerId);
   if (!player) return;
@@ -836,7 +590,7 @@ function removePick(playerId) {
   renderTeams();
   updateHeader();
 }
- 
+
 function nextRound() {
   if (pickedThisRound() === 0) return;
   currentRound++;
@@ -846,7 +600,7 @@ function nextRound() {
   // scroll to top of players section
   document.getElementById("playersGrid").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
- 
+
 function resetAll() {
   currentRound = 1;
   players.forEach((p, i) => { p.picks = []; p.name = `Player ${i+1}`; });
@@ -854,7 +608,7 @@ function resetAll() {
   renderTeams();
   updateHeader();
 }
- 
+
 /* ── Drag ghost ── */
 const ghost = document.getElementById("dragGhost");
 document.addEventListener("dragover", e => {
@@ -867,7 +621,7 @@ function showGhost(team) {
   ghost.classList.add("visible");
 }
 function hideGhost() { ghost.classList.remove("visible"); }
- 
+
 /* ── Confetti ── */
 function celebrate() {
   const colors = ["#F5C518","#00B04F","#ffffff","#3498db","#e74c3c"];
@@ -886,7 +640,7 @@ function celebrate() {
     setTimeout(() => p.remove(), 1600);
   }
 }
- 
+
 /* ── Init ── */
 document.addEventListener("DOMContentLoaded", () => {
   buildFilterRow();
