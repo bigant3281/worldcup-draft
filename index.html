@@ -244,7 +244,17 @@
     100% { opacity: 0; transform: translateY(220px) rotate(400deg); }
   }
 
-  /* ── Odds ── */
+  .load-label { cursor: pointer; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(8px);
+    background: var(--pitch-light); border: 1px solid var(--border-strong);
+    color: var(--text); font-size: 0.82rem; padding: 0.55rem 1.2rem;
+    border-radius: 8px; opacity: 0; transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none; z-index: 9999; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .chip-odds {
     font-size: 0.62rem;
     font-weight: 700;
@@ -275,7 +285,12 @@
   <div class="header-right">
     <span class="round-badge" id="roundBadge">Round 1</span>
     <button class="hdr-btn primary" id="nextRoundBtn" onclick="nextRound()">Next Round →</button>
-    <button class="hdr-btn ghost" onclick="resetAll()">Reset all</button>
+    <button class="hdr-btn ghost" onclick="saveDraft()" title="Save selections to JSON file">💾 Save</button>
+    <label class="hdr-btn ghost load-label" title="Load a saved JSON file">
+      📂 Load
+      <input type="file" accept=".json" id="loadInput" style="display:none" onchange="loadDraft(event)">
+    </label>
+    <button class="hdr-btn ghost" onclick="resetAll()">Reset</button>
   </div>
 </header>
 
@@ -302,6 +317,7 @@
   <span class="ghost-flag" id="ghostFlag"></span>
   <span id="ghostName"></span>
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
 const TEAMS = [
@@ -639,6 +655,70 @@ function celebrate() {
     document.body.appendChild(p);
     setTimeout(() => p.remove(), 1600);
   }
+}
+
+/* ── Toast ── */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+/* ── Save / Load ── */
+function saveDraft() {
+  const data = {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    currentRound,
+    players: players.map(p => ({
+      id: p.id,
+      name: p.name,
+      picks: p.picks.map(pk => ({ round: pk.round, teamName: pk.team.name }))
+    }))
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  const ts   = new Date().toISOString().slice(0,16).replace("T","-").replace(":","-");
+  a.href     = url;
+  a.download = `wc2026-draft-${ts}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("✅ Draft saved!");
+}
+
+function loadDraft(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.players || !Array.isArray(data.players)) throw new Error("Invalid format");
+
+      currentRound = data.currentRound || 1;
+      players = data.players.map(p => ({
+        id: p.id,
+        name: p.name,
+        picks: (p.picks || []).map(pk => {
+          const team = TEAMS.find(t => t.name === pk.teamName);
+          return team ? { round: pk.round, team } : null;
+        }).filter(Boolean)
+      }));
+
+      buildPlayers();
+      renderTeams();
+      updateHeader();
+      showToast("📂 Draft loaded!");
+    } catch(err) {
+      showToast("❌ Invalid file — couldn't load draft.");
+    }
+    event.target.value = ""; // reset so same file can be re-loaded
+  };
+  reader.readAsText(file);
 }
 
 /* ── Init ── */
